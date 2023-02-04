@@ -1,0 +1,174 @@
+<!-- 
+    /**
+    *This is a template for adding interactive maps to your site. 
+    *Using leaflet opensource javascript library
+    *The functionality can be extended to accomodate more markers
+    *References: https://leafletjs.com/
+    * https://www.youtube.com/playlist?list=PLNCPalajQvg55_lI2bkO2mvESqxrTwyJJ
+    * https://gis.stackexchange.com/questions/261142/leaflet-mouseover-popup-makes-whole-map-move
+    * https://gis.stackexchange.com/questions/31951/showing-popup-on-mouse-over-not-on-click-using-leaflet
+    * Dependencies
+    * Countries geojson data. 
+    * The data can be found here:  https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-0-countries/
+    * Use this software to open  the data you download from naturalearthdata.com:  QGIS which can be downloaded here: 
+    * https://www.qgis.org/en/site/forusers/download.html
+    * Happy coding.
+    */
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+     crossorigin=""/>
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+
+     <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+        crossorigin=""></script>
+
+        <!-- Include  countries data -->
+        <script src="data/countries.geojson"></script>
+        <style>
+            #map {
+                height: 400px;
+                width: 1000px;
+
+            }
+        </style>
+    <title>INTERACTIVE GEO MAPS</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h1>My Map</h1>
+
+                <!-- Where the map will be shown. It must have the id map. You must define a height for this div -->
+                <div id="map">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+
+        // set country color as per population estimate from the countries.geojson file.
+        function getCountryColor(popEst)
+        {
+            if(popEst > 1000000)
+            {
+                return 'red';
+
+            } else if (popEst > 5000000) {
+                return 'blue';
+            } else {
+                return 'green';
+            }
+
+        }
+        // set country styles
+        function countriesStyle(feature)
+        {
+            return {
+                fillColor: getCountryColor(feature.properties.pop_est),
+                weight: 2,
+                opacity: 1,
+                color: 'white', 
+                dashArray: 3,
+                fillOpacity: 0.7
+            }
+        }
+
+        // Define the centre of the map
+        var map = L.map('map').setView([43.8476,18.3564], 3);
+        
+        // specifying data for all countries
+        var countriesLayer = L.geoJson(
+            countries,
+            {style : countriesStyle}
+        ).addTo(map);
+        //  map.fitBounds(countriesLayer.getBounds());
+
+        /** ================Define where your markers will appear======================== */
+        // var point = [43.866667, 18.416667];
+      
+        // marker 1
+        var point = [3.3731, 29.9189];
+
+        // marker 2
+        var cameroon = [7.3697, 12.3547];
+
+        var circle = L.circle(
+            point,
+            10000,
+            {
+                color: 'purple',
+                fillColor: 'red',
+                fillOpacity : 0.8
+
+            }
+        ).addTo(map);
+
+        var marker = L.marker(point).addTo(map);
+
+        
+        var greenIcon = L.icon(
+            {
+                iconUrl : 'http://leafletjs.com/examples/custom-icons/leaf-green.png',
+                shadowUrl : 'http://leafletjs.com/examples/custom-icons/leaf-shadow.png',
+                iconSize : [38, 95],
+                shadowSize: [50,64],
+                iconAnchor : [22, 94],
+                shadowAnchor : [4, 62],
+                popupAnchor : [-3, -76]
+            }
+        );
+
+        // Defining the marker
+        var myMarker = L.marker(point);        
+        myMarker.addTo(map); //add the marker to the map
+       
+       //Bind a popup to the marker
+        myMarker.bindPopup(
+            '<img style="width: 100%" src="https://gnrc.net/wp-content/uploads/2022/10/Sandrine_Nkurunziza.jpg"> <p class="text-center">Sandrine Nkurunziza <br> Contact Person GNRC Burundi',
+            '<div style="text-align:center"><img style="width: 80px"  src="https://gnrc.net/wp-content/uploads/2022/10/Sandrine_Nkurunziza.jpg"><p class="text-center" >Sandrine Nkurunziza</p> </div>',
+
+            {minWidth : 256 , autoPan: false}
+        );
+
+        // show pop on mouseover
+        myMarker.on('mouseover', function (e) {
+            this.openPopup();
+        });
+        // closepopup on mouseout
+        myMarker.on('mouseout', function (e) {
+            this.closePopup();
+        });
+
+
+
+        var cameroonMarker = L.marker(cameroon);
+        cameroonMarker.addTo(map);
+       
+       
+        cameroonMarker.bindPopup(
+            '<div style="text-align:center"><img style="width: 80px"  src="https://gnrc.net/wp-content/uploads/2022/10/Alexander_Gwanvalla.jpg"><p class="text-center" >Mr. Alexander Gwanvalla</p> <p class="text-center">Contact Person, GNRC Cameroon. </p></div>',
+            {maxWidth : 156 , autoPan: false}
+        );
+
+        cameroonMarker.on('mouseover', function (e) {
+            this.openPopup();
+        });
+        cameroonMarker.on('mouseout', function (e) {
+            this.closePopup();
+        });
+    </script>
+</body>
+</html>
